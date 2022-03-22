@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "express": "^4.17.3",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.1",
+    "mongoose": "^6.2.7",
+    "nodemon": "^2.0.15",
+    "validate": "^5.2.0",
+    "validator": "^13.7.0"
+  }
+}
