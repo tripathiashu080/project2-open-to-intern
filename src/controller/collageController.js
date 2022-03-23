@@ -57,40 +57,38 @@ const createCollage = async function (req, res){
 
 
 const getCollage = async function (req, res) {
-    try {
-      let { name } = req.query;
-      let obj = {};
-      if (name != null) obj.name = name;
-  
-      let collageDetails = await collageModel.find(obj);
-      if (!name) {
-        res.status(400).send({ status: false, msg: "plz provide details" });
-      }
-      if (collageDetails.length > 0) {
-        let clgId = collageDetails[0]._id;
-        let InternDetails = await internModel.find({
-          collageId: clgId,
-          isDeleted: false,
-        }).select({ _id: 1, name: 1, email: 1, mobile: 1 });
-  
-        if (InternDetails.length > 0) {
-          result = {
-            name: collageDetails[0].name,
-            fullName: collageDetails[0].fullname,
-            logoLink: collageDetails[0].logolink,
-            interest: InternDetails,
-          };
-          return res.status(200).send({ status: true, data: result });
-        } else {
-          res.status(404).send("Intern not found");
-        }
-      } else {
-        res.status(404).send({ status: false, msg: "college details not found" });
-      }
-    } catch (err) {
-      res.status(500).send({ status: false, msg: err.message });
+  try {
+    let collageName = req.query.collageName;
+
+    let collageDetails = await collageModel.findOne({name: collageName, isDeleted: false}).select({ _id: 1, name: 1, fullname: 1, logolink: 1 });
+
+    if (!collageName) {
+      res.status(400).send({ status: false, msg: "plz provide college name" });
     }
-  };
+
+    if (!collageDetails) {
+      res.status(404).send({ status: false, msg: "college details not found" });
+    }
+
+    let clgId = collageDetails._id;
+    let InternDetails = await internModel.find({collageId: clgId, isDeleted: false}).select({ _id: 1, name: 1, email: 1, mobile: 1 });
+
+    if (InternDetails.length > 0) {
+      result = {
+        name: collageDetails.name,
+        fullname: collageDetails.fullname,
+        logolink: collageDetails.logolink,
+        interest: InternDetails,
+      };
+      return res.status(200).send({ status: true, data: result });
+    } else {
+      // res.status(404).send({status: false, msg:"Interns not found"});
+      return res.status(404).send({status: true, data: {...collageDetails.toObject(),interests: "Interns not found"}});
+    }
+  } catch (err) {
+    res.status(500).send({ status: false, msg: err.message });
+  }
+};
 
 module.exports.createCollage = createCollage
 module.exports.getCollage = getCollage
